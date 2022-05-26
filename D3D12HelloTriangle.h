@@ -43,6 +43,10 @@ private:
   struct Vertex {
     XMFLOAT3 position;
     XMFLOAT4 color;
+    // #DXR Extra: Indexed Geometry
+    Vertex(XMFLOAT4 pos, XMFLOAT4 /*n*/, XMFLOAT4 col)
+        : position(pos.x, pos.y, pos.z), color(col) {}
+    Vertex(XMFLOAT3 pos, XMFLOAT4 col) : position(pos), color(col) {}
   };
 
   // Pipeline objects.
@@ -97,14 +101,19 @@ private:
   /// \param     vVertexBuffers : pair of buffer and vertex count
   /// \return    AccelerationStructureBuffers for TLAS
   AccelerationStructureBuffers CreateBottomLevelAS(
-      std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> vVertexBuffers);
+      std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> vVertexBuffers,
+      std::vector<std::pair<ComPtr<ID3D12Resource>, uint32_t>> vIndexBuffers =
+          {});
 
   /// Create the main acceleration structure that holds
   /// all instances of the scene
   /// \param     instances : pair of BLAS and transform
+  // #DXR Extra - Refitting
+  /// \param     updateOnly: if true, perform a refit instead of a full build
   void CreateTopLevelAS(
       const std::vector<std::pair<ComPtr<ID3D12Resource>, DirectX::XMMATRIX>>
-          &instances);
+          &instances,
+      bool updateOnly = false);
 
   /// Create all acceleration structures, bottom and top
   void CreateAccelerationStructures();
@@ -140,4 +149,63 @@ private:
   void CreateShaderBindingTable();
   nv_helpers_dx12::ShaderBindingTableGenerator m_sbtHelper;
   ComPtr<ID3D12Resource> m_sbtStorage;
+
+  // #DXR Extra: Perspective Camera
+  void CreateCameraBuffer();
+  void UpdateCameraBuffer();
+  ComPtr<ID3D12Resource> m_cameraBuffer;
+  ComPtr<ID3D12DescriptorHeap> m_constHeap;
+  uint32_t m_cameraBufferSize = 0;
+
+  // #DXR Extra: Perspective Camera++
+  void OnButtonDown(UINT32 lParam);
+  void OnMouseMove(UINT8 wParam, UINT32 lParam);
+
+  // #DXR Extra: Per-Instance Data
+  ComPtr<ID3D12Resource> m_planeBuffer;
+  D3D12_VERTEX_BUFFER_VIEW m_planeBufferView;
+  void CreatePlaneVB();
+
+  // #DXR Extra: Per-Instance Data
+  void D3D12HelloTriangle::CreateGlobalConstantBuffer();
+  ComPtr<ID3D12Resource> m_globalConstantBuffer;
+
+  // #DXR Extra: Per-Instance Data
+  void CreatePerInstanceConstantBuffers();
+  std::vector<ComPtr<ID3D12Resource>> m_perInstanceConstantBuffers;
+
+  // #DXR Extra: Depth Buffering
+  void CreateDepthBuffer();
+  ComPtr<ID3D12DescriptorHeap> m_dsvHeap;
+  ComPtr<ID3D12Resource> m_depthStencil;
+
+  ComPtr<ID3D12Resource> m_indexBuffer;
+  D3D12_INDEX_BUFFER_VIEW m_indexBufferView;
+
+  // #DXR Extra: Indexed Geometry
+  void CreateMengerSpongeVB();
+  ComPtr<ID3D12Resource> m_mengerVB;
+  ComPtr<ID3D12Resource> m_mengerIB;
+  D3D12_VERTEX_BUFFER_VIEW m_mengerVBView;
+  D3D12_INDEX_BUFFER_VIEW m_mengerIBView;
+
+  UINT m_mengerIndexCount;
+  UINT m_mengerVertexCount;
+
+  // #DXR Extra - Another ray type
+  ComPtr<IDxcBlob> m_shadowLibrary;
+  ComPtr<ID3D12RootSignature> m_shadowSignature;
+
+  // #DXR Extra - Refitting
+  uint32_t m_time = 0;
+
+  // #DXR Extra - Refitting
+  /// Per-instance properties
+  struct InstanceProperties {
+    XMMATRIX objectToWorld;
+  };
+
+  ComPtr<ID3D12Resource> m_instanceProperties;
+  void CreateInstancePropertiesBuffer();
+  void UpdateInstancePropertiesBuffer();
 };
