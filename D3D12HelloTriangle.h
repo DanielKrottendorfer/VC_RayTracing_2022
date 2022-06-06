@@ -81,7 +81,7 @@ private:
   void CheckRaytracingSupport();
 
   virtual void OnKeyUp(UINT8 key);
-  bool m_raster = true;
+  bool m_raster = false;
 
   // #DXR
   struct AccelerationStructureBuffers {
@@ -183,7 +183,7 @@ private:
   D3D12_INDEX_BUFFER_VIEW m_indexBufferView;
 
   // #DXR Extra: Indexed Geometry
-  void CreateMengerSpongeVB();
+  void CreateCubeVB();
   ComPtr<ID3D12Resource> m_mengerVB;
   ComPtr<ID3D12Resource> m_mengerIB;
   D3D12_VERTEX_BUFFER_VIEW m_mengerVBView;

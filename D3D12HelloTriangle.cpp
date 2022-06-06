@@ -337,7 +337,7 @@ void D3D12HelloTriangle::LoadAssets() {
     m_vertexBufferView.SizeInBytes = vertexBufferSize;
 
     // #DXR Extra: Indexed Geometry
-    CreateMengerSpongeVB();
+    CreateCubeVB();
 
     //----------------------------------------------------------------------------------------------
     // Indices
@@ -1419,11 +1419,11 @@ void D3D12HelloTriangle::CreateDepthBuffer() {
 }
 
 // #DXR Extra: Indexed Geometry
-void D3D12HelloTriangle::CreateMengerSpongeVB() {
+void D3D12HelloTriangle::CreateCubeVB() {
   std::vector<Vertex> vertices;
   std::vector<UINT> indices;
 
-  float s = 0.5;
+  float s  = 0.5;
 
   XMFLOAT3 p0 = XMFLOAT3(-s, -s,  s);
   XMFLOAT3 p1 = XMFLOAT3( s, -s,  s);
@@ -1496,7 +1496,6 @@ void D3D12HelloTriangle::CreateMengerSpongeVB() {
   indices.push_back(7);
   indices.push_back(4);
 
-  //nv_helpers_dx12::GenerateMengerSponge(3, 0.75, vertices, indices);
   {
     const UINT mengerVBSize =
         static_cast<UINT>(vertices.size()) * sizeof(Vertex);
